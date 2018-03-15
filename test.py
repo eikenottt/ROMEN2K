@@ -4,4 +4,3 @@ import pandas as pd
 import mglearn
 from IPython.display import display
 
-
