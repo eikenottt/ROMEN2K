@@ -1,3 +1,5 @@
+from collections import Counter
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -11,7 +13,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 
 ########
-reviews_train = load_files("train/")
+"""reviews_train = load_files("train/")
 text_train, y_train = reviews_train.data, reviews_train.target
 # ------------------------------------------------------------
 reviews_test = load_files("test/")
@@ -37,3 +39,17 @@ grid.fit(X_train, y_train)
 mglearn.tools.visualize_coefficients(
     grid.best_estimator_.named_steps["logisticregression"].coef_, feature_names, n_top_features=40
 )
+
+"""
+
+
+def merge(x, y):
+    z = x.copy()
+    z.update(y)
+    return z
+
+
+a = Counter({"i": 3, "my": 4})
+b = Counter({"i": 2, "by": 5, "my": 1})
+c = a + b
+print(c)
