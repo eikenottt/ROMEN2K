@@ -5,4 +5,4 @@ testString3 = "Okay movie, horrible story, good acting"
 testString4 = "Give this man an Oscar"
 testString5 = "bad movie"
 
-reviews[]
+reviews[] =
