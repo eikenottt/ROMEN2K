@@ -5,11 +5,14 @@ author: John Tore Simosnen
 author: Rune Eikemo
 version: 1.0
 """
+
 import glob
 from collections import Counter
 import string
 
-stopword = {"the", "a", "of", "in", "are", "to", "and", "is", "&", "br"}
+stopword = {"the", "a", "of", "in", "are", "to", "and", "is", "&", "br", "but", "it",
+            "that", "as", "was", "for", "on", "be", "width", "have", "its", "one",
+            "at", "", "so", "or", "an", "by"}
 punct = string.punctuation
 i = 0
 
@@ -29,6 +32,7 @@ def make_vocab(dir):
 
             rtxt = rtxt.split(" ")
             okarray = [s for s in rtxt if s not in stopword]
+
             temp = Counter(okarray)
             arr = arr + temp
         i = i + 1
