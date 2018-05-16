@@ -14,7 +14,8 @@ from math import log, sqrt
 stopword = {"the", "a", "of", "in", "are", "to", "and", "is", "&", "br", "but", "it",
             "that", "as", "was", "for", "on", "be", "width", "have", "its", "one",
             "at", "", "so", "or", "an", "by"}
-punct = string.punctuation
+punct = str.maketrans(dict.fromkeys(string.punctuation))
+
 i = 0
 
 threshold = 0.1
@@ -35,15 +36,14 @@ def train_native_bayer(dir, C):
 def make_vocab(dir):
     global arr, i
     for fle in dir:
-        if i > 50:
+        if i > 500:
             break
         with open(fle, "r") as rtxt:
             rtxt = rtxt.read().replace('\n', '')
 
             rtxt = rtxt.lower()
 
-            for char in punct:
-                rtxt = rtxt.replace(char, "")
+            rtxt = rtxt.translate(punct)
 
             rtxt = rtxt.split(" ")
             okarray = [s for s in rtxt if s not in stopword]
@@ -96,21 +96,57 @@ def compare_input(pos, neg, input):
 
     return
 
+def naive_bayes(w, c):
+    allvocab = pos + neg
+    result = 1
+    if allvocab[w] != 0:
+        allvalues = sum(allvocab.values())
+        wordclass = allvocab[w]
+
+        winpos = c[w] / sum(c.values())  # P(w|c) w = word, c = positive || negative
+
+        if winpos != 0:
+            poslike = sum(c.values()) / allvalues  # P(c) c = positive || negative
+            wordlike = wordclass / allvalues  # P(w) w = word
+            result = (winpos) * (poslike / wordlike)
+
+    return result
+
+
+def likelihood(sentence):
+    sentence = sentence.translate(punct)
+    sen = sentence.lower().split(" ")
+    s = Counter(sen)
+    sumpo = sumne = 1
+    for w in s.items():
+        po = naive_bayes(w[0], pos)
+        sumpo *= po
+        ne = naive_bayes(w[0], neg)
+        sumne *= ne
+    return sumpo, sumne
+
+
+
 
 def differens(x, y):
     diff = x - y
     return diff / (x + y)
 
 
-# arr = Counter()
-#
-# negFiles = "train/"
-# C =["pos/", "neg/"]
-# neg = make_vocab(negFiles)
+arr = Counter()
 
-# arr = Counter()
-# posFiles = glob.glob("train/pos/*.txt")
-# pos = make_vocab(posFiles)
+negFiles = glob.glob("train/neg/*.txt")
+neg = make_vocab(negFiles)
+
+arr = Counter()
+posFiles = glob.glob("train/pos/*.txt")
+pos = make_vocab(posFiles)
+
+positive, negative = likelihood("bad,")
+
+print(neg['bad'])
+
+print("Positive sentence: {0:.2f} \nNegative sentence: {1:.2f} ".format(positive, negative))
 
 # compare_dict(pos, neg)
 

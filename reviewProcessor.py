@@ -36,12 +36,13 @@ def naive_bayes(w, c):
         allvalues = sum(allvocab.values())
         wordclass = allvocab[w]
 
-        winpos = c[w] / sum(c.values())  # P(w|c) w = word, c = positive
-        poslike = sum(c.values()) / allvalues  # P(c) c = positive
+        winpos = c[w] / sum(c.values())  # P(w|c) w = word, c = positive || negative
+        poslike = sum(c.values()) / allvalues  # P(c) c = positive || negative
         wordlike = wordclass / allvalues  # P(w) w = word
 
-        print(wordclass)
-        result = (winpos + 1) * (poslike / wordlike)
+        if winpos != 0:
+            result = (winpos) * (poslike / wordlike)
+
     return result
 
 
@@ -59,6 +60,6 @@ def likelihood(sentence):
 
 positive, negative = likelihood(test)
 
-print(positive, negative)
+print("Positive sentence: {0:.2f} %\nNegative sentence: {1:.2f} %".format(positive, negative))
 
 # print("Positive: {}\nNegative: {}".format(pos, neg))
