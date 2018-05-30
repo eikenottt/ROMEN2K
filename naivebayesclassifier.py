@@ -13,6 +13,8 @@ import string
 import pickle
 import os
 import re
+import numpy
+import math
 
 
 import time
@@ -58,16 +60,18 @@ def naive_bayes(word, category):
     :param category: The class positive or negative
     :return: the probably of word occurring in the category
     """
-    result = 1  # the result value is set to 1 to prevent dividing by zero.
-    if vocabulary[word] != 0:
-        all_values = sum(vocabulary.values())  # the integer sum of all words occurring in the vocubalary
-        word_occurrence = vocabulary[word]  # the integer of occurrences of the word
+    if category == pos:
+        category_values = pos_values
+    else:
+        category_values = neg_values
 
-        word_in_class = category[word] / sum(
-            category.values())  # P(w|c) w = word, c = positive || negative (Conditional probability)
+    word_occurrence = vocabulary[word]  # the integer of occurrences of the word
+    result = 1  # the result value is set to 1 to prevent dividing by zero.
+    if word_occurrence != 0:
+        word_in_class = category[word] / category_values
 
         if word_in_class != 0:  # If word doesn't occur in the class
-            class_prob = sum(category.values()) / all_values  # P(c) c = positive || negative
+            class_prob = category_values / all_values  # P(c) c = positive || negative
             word_prob = word_occurrence / all_values  # P(w) w = word
             result = word_in_class * (
                     class_prob / word_prob)  # Calculating the probability of the word occurring in class
@@ -87,18 +91,13 @@ def likelihood(sentence):
     frequence_of_words = Counter(word_arr)  # Notes the frequency/occurrence of each word in sentence
     prob_positive = prob_negative = 1  # Sets sum of positive and negative to 1, to prevent dividing by 0 and accumulate
     for w in frequence_of_words.items():  # Loops through words to calculate possibilities
-        # if vocabulary[w[0]] != 0:
-        #     print(pos[w[0]])
+    #     if vocabulary[w[0]] != 0:
+    #         print(pos[w[0]])
         prob_word_positive = naive_bayes(w[0], pos)  # Calculates probability of word occurring in positive review
-        prob_positive *= prob_word_positive  # Multiplies the probabilities together to find probability of whole sentence
+        prob_positive = prob_positive * prob_word_positive  # Multiplies the probabilities together to find probability of whole sentence
         prob_word_negative = naive_bayes(w[0], neg)  # Repeat same process for negative.
-        prob_negative *= prob_word_negative
+        prob_negative = prob_negative * prob_word_negative
     return prob_positive, prob_negative  # return both probabilities
-
-
-def difference(x, y):
-    diff = x - y
-    return diff / (x + y)
 
 
 def train_model(filename='trained.model', limit=12500):
@@ -144,10 +143,10 @@ def test_large_set_of_reviews(directory):
 
     test_directory = glob.glob(directory)
     random.shuffle(test_directory)
-    limit = 100
+    limit = 20
     test_directory = test_directory[:limit]
     i = 1
-    regex = re.compile('[\\/](\w+)[\\/]')
+    regex = re.compile('[\\\/](\w+)[\\\/]')
     start_time = time.time()
     for review_path in test_directory:
         class_label = regex.search(review_path).group(1)
@@ -194,7 +193,10 @@ def compare_class_labels(label, real_label):
 
 if __name__ == '__main__':
     pos, neg = train_model()
+    pos_values = sum(pos.values())  # P(w|c) w = word, c = positive || negative (Conditional probability)
+    neg_values = sum(neg.values())  # P(w|c) w = word, c = positive || negative (Conditional probability)
     vocabulary = pos + neg
+    all_values = sum(vocabulary.values())  # the integer sum of all words occurring in the vocubalary
     start_time = time.time()
     test_large_set_of_reviews("test/*/*.txt")
     print("Time spent in total {:.2f} seconds".format((time.time() - start_time)))
