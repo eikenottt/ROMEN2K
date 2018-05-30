@@ -147,7 +147,7 @@ def test_large_set_of_reviews(directory):
     limit = 100
     test_directory = test_directory[:limit]
     i = 1
-    regex = re.compile('/(\w+)/')
+    regex = re.compile('[\\/](\w+)[\\/]')
     start_time = time.time()
     for review_path in test_directory:
         class_label = regex.search(review_path).group(1)
