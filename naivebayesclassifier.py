@@ -147,9 +147,10 @@ def test_large_set_of_reviews(directory):
     limit = 100
     test_directory = test_directory[:limit]
     i = 1
+    regex = re.compile('/(\w+)/')
     start_time = time.time()
     for review_path in test_directory:
-        class_label = re.search(r"/(\w+)/", review_path).group(1)
+        class_label = regex.search(review_path).group(1)
         with open(review_path, "r", encoding="utf8") as review:
             key = compare_class_labels(test_single_review(review.read()), class_label)
             review.close()
