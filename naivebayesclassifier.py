@@ -88,14 +88,12 @@ def likelihood(sentence):
     :param sentence: sentence or reviews to be categorized
     :return: prob_positive, prob_negative: probility of sentence belonging to category positive or negative
     """
-    sentence = sentence.translate(punct)  # Removes all the punctuations from given sentence
-    word_arr = sentence.lower().split(" ")  # All words to lower-case and split words to array
-    frequence_of_words = Counter(word_arr)  # Notes the frequency/occurrence of each word in sentence
+    word_arr = Counter(sentence.translate(punct).lower().split(" "))  # All words to lower-case and split words to Counter
     prob_positive = prob_negative = 1  # Sets sum of positive and negative to 1, to prevent dividing by 0 and accumulate
-    for w in frequence_of_words.items():  # Loops through words to calculate possibilities
-        prob_word_positive = naive_bayes(w[0], pos)  # Calculates probability of word occurring in positive review
+    for w in word_arr:  # Loops through words to calculate possibilities
+        prob_word_positive = naive_bayes(w, pos)  # Calculates probability of word occurring in positive review
         prob_positive = prob_positive * prob_word_positive  # Multiplies the probabilities together to find probability of whole sentence
-        prob_word_negative = naive_bayes(w[0], neg)  # Repeat same process for negative.
+        prob_word_negative = naive_bayes(w, neg)  # Repeat same process for negative.
         prob_negative = prob_negative * prob_word_negative
     return prob_positive, prob_negative  # return both probabilities
 
@@ -151,8 +149,7 @@ def test_large_set_of_reviews(directory):
     limit = 30
     test_directory = test_directory[:limit]
     i = 1
-    beta = 1
-    regex = re.compile('[\\\/](\w+)[\\\/]')
+    regex = re.compile('[\\\/](\w+)[\\\/]')  # Regex to extract the classification of the shuffled testing directory
     start_time = time.time()
     for review_path in test_directory:
         class_label = regex.search(review_path).group(1)
@@ -168,7 +165,7 @@ def test_large_set_of_reviews(directory):
     precision_neg = gsl['tn'] / (gsl['tn'] + gsl['fn'])
     recall_pos = gsl['tp'] / (gsl['tp'] + gsl['fn'])
     recall_neg = gsl['tn'] / (gsl['tn'] + gsl['fp'])
-    f_mesure = ((beta ** 2 + 1) * precision_pos * recall_pos) / (precision_pos + recall_pos)
+    f_mesure = ((1 ** 2 + 1) * precision_pos * recall_pos) / (precision_pos + recall_pos)
     accuracy = (gsl['tp'] + gsl['tn']) / (gsl['tp'] + gsl['fp'] + gsl['tn'] + gsl['fn'])
     error_rate = 1 - f_mesure
 
@@ -204,7 +201,9 @@ def compare_class_labels(label, real_label):
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     pos, neg, stopword = train_model()
+    print(time.time() - start_time)
     pos_values = sum(pos.values())  # P(w|c) w = word, c = positive || negative (Conditional probability)
     neg_values = sum(neg.values())  # P(w|c) w = word, c = positive || negative (Conditional probability)
     vocabulary = pos + neg
