@@ -1,8 +1,8 @@
 """
 naivebayesclassifier - classifying movie reviews as good or bad
 
-author: John Tore Simosnen
-author: Rune Eikemo
+author: 26
+author: 30
 version: 1.0
 """
 
@@ -13,9 +13,6 @@ import string
 import pickle
 import os
 import re
-import numpy
-import math
-
 import time
 
 
@@ -112,9 +109,10 @@ def train_model(filename='trained.model', limit=12500):
         pos_files = glob.glob("train/pos/*.txt")
         pos_vocab = make_vocab(pos_files, limit)
 
-        all_vocab = neg_vocab + pos_vocab
+        # all_vocab = neg_vocab + pos_vocab
 
-        stopword = make_stopword_list(all_vocab)
+        stopword = make_stopword_list(neg_vocab)
+        stopword += make_stopword_list(pos_vocab)
 
         model_dict = {'pos': pos_vocab, 'neg': neg_vocab, 'stopwords': stopword}
         save_file = open(filename, 'wb')
@@ -145,8 +143,10 @@ def test_large_set_of_reviews(directory):
     gsl = {'tp': 0, 'fp': 0, 'tn': 0, 'fn': 0}
 
     test_directory = glob.glob(directory)
+    start_time = time.time()
     random.shuffle(test_directory)
-    limit = 30
+    print(time.time() - start_time)
+    limit = 100
     test_directory = test_directory[:limit]
     i = 1
     regex = re.compile('[\\\/](\w+)[\\\/]')  # Regex to extract the classification of the shuffled testing directory
@@ -157,7 +157,7 @@ def test_large_set_of_reviews(directory):
             key = compare_class_labels(test_single_review(review.read()), class_label)
             review.close()
         gsl[key] += 1
-        if i % 10 == 0:
+        if i % 30 == 0:
             print(
                 "Time spent on {} reviews, {:.2f} seconds:".format(str(i) + "/" + str(limit), time.time() - start_time))
         i += 1
@@ -165,9 +165,11 @@ def test_large_set_of_reviews(directory):
     precision_neg = gsl['tn'] / (gsl['tn'] + gsl['fn'])
     recall_pos = gsl['tp'] / (gsl['tp'] + gsl['fn'])
     recall_neg = gsl['tn'] / (gsl['tn'] + gsl['fp'])
-    f_mesure = ((1 ** 2 + 1) * precision_pos * recall_pos) / (precision_pos + recall_pos)
+    f_mesure_pos = ((1 ** 2 + 1) * precision_pos * recall_pos) / (precision_pos + recall_pos)
+    f_mesure_neg = ((1 ** 2 + 1) * precision_neg * recall_neg) / (precision_neg + recall_neg)
     accuracy = (gsl['tp'] + gsl['tn']) / (gsl['tp'] + gsl['fp'] + gsl['tn'] + gsl['fn'])
-    error_rate = 1 - f_mesure
+    error_rate_pos = 1 - f_mesure_pos
+    error_rate_neg = 1 - f_mesure_neg
 
     print("TP: {}\nTN: {}\nFP: {}\nFN: {}\n".format(gsl['tp'], gsl['tn'], gsl['fp'], gsl['fn']))
     print("Precision Positive:", precision_pos)
@@ -175,8 +177,10 @@ def test_large_set_of_reviews(directory):
     print("Recall Positive:", recall_pos)
     print("Recall Negative:", recall_neg)
     print("Accuracy:", accuracy)
-    print("Error Rate:", error_rate)
-    print("F-Measure:", f_mesure)
+    print("Error Rate Positive:", error_rate_pos)
+    print("Error Rate Negative:", error_rate_neg)
+    print("F-Measure Positive:", f_mesure_pos)
+    print("F-Measure Negative:", f_mesure_neg)
 
 
 def test_single_review(review):
