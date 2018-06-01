@@ -15,20 +15,22 @@ import os
 import re
 import time
 
-
 punct = str.maketrans(dict.fromkeys(string.punctuation))
 
 
-def make_stopword_list(vocab):
+def make_stopword_list(neg_vocab, pos_vocab, treshold=0.1):
     stopword = []
-    for n in vocab:
-        word_occ = vocab[n]
-        num_of_times_in = (word_occ / len(vocab)) * 100
-        if num_of_times_in > 1:
+    vocabulary = neg_vocab + pos_vocab
+    for n in vocabulary:
+        word_occ_neg = neg_vocab[n]
+        word_occ_pos = pos_vocab[n]
+        num_of_times_in = (abs(word_occ_neg - word_occ_pos) / (word_occ_neg + word_occ_pos))
+        if num_of_times_in < treshold:
             stopword.append(n)
 
     for e in stopword:
-        vocab.pop(e)
+        neg_vocab.pop(e)
+        pos_vocab.pop(e)
 
     return stopword
 
@@ -111,8 +113,7 @@ def train_model(filename='trained.model', limit=12500):
 
         # all_vocab = neg_vocab + pos_vocab
 
-        stopword = make_stopword_list(neg_vocab)
-        stopword += make_stopword_list(pos_vocab)
+        stopword = make_stopword_list(neg_vocab, pos_vocab)
 
         model_dict = {'pos': pos_vocab, 'neg': neg_vocab, 'stopwords': stopword}
         save_file = open(filename, 'wb')
@@ -143,11 +144,8 @@ def test_large_set_of_reviews(directory):
     gsl = {'tp': 0, 'fp': 0, 'tn': 0, 'fn': 0}
 
     test_directory = glob.glob(directory)
-    start_time = time.time()
     random.shuffle(test_directory)
-    print(time.time() - start_time)
-    limit = 100
-    test_directory = test_directory[:limit]
+    test_directory = test_directory
     i = 1
     regex = re.compile('[\\\/](\w+)[\\\/]')  # Regex to extract the classification of the shuffled testing directory
     start_time = time.time()
@@ -157,9 +155,9 @@ def test_large_set_of_reviews(directory):
             key = compare_class_labels(test_single_review(review.read()), class_label)
             review.close()
         gsl[key] += 1
-        if i % 30 == 0:
+        if i % 500 == 0:
             print(
-                "Time spent on {} reviews, {:.2f} seconds:".format(str(i) + "/" + str(limit), time.time() - start_time))
+                "Time spent on {} reviews, {:.2f} seconds:".format(str(i) + "/" + str(25000), time.time() - start_time))
         i += 1
     precision_pos = gsl['tp'] / (gsl['tp'] + gsl['fp'])
     precision_neg = gsl['tn'] / (gsl['tn'] + gsl['fn'])
@@ -205,9 +203,7 @@ def compare_class_labels(label, real_label):
 
 
 if __name__ == '__main__':
-    start_time = time.time()
     pos, neg, stopword = train_model()
-    print(time.time() - start_time)
     pos_values = sum(pos.values())  # P(w|c) w = word, c = positive || negative (Conditional probability)
     neg_values = sum(neg.values())  # P(w|c) w = word, c = positive || negative (Conditional probability)
     vocabulary = pos + neg
