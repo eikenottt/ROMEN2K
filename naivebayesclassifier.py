@@ -87,7 +87,8 @@ def likelihood(sentence):
     :param sentence: sentence or reviews to be categorized
     :return: prob_positive, prob_negative: probility of sentence belonging to category positive or negative
     """
-    word_arr = Counter(sentence.translate(punct).lower().split(" "))  # All words to lower-case and split words to Counter
+    word_arr = Counter(
+        sentence.translate(punct).lower().split(" "))  # All words to lower-case and split words to Counter
     prob_positive = prob_negative = 1  # Sets sum of positive and negative to 1, to prevent dividing by 0 and accumulate
     for w in word_arr:  # Loops through words to calculate possibilities
         prob_word_positive = naive_bayes(w, pos)  # Calculates probability of word occurring in positive review
@@ -189,6 +190,15 @@ def test_single_review(review):
         return "neg"
 
 
+def test_reviews(directory):
+    review_dict = {}
+    directory = glob.glob(directory)
+    for document in directory:
+        with open(document, 'r', encoding='utf8') as review:
+            review_dict.update({review.name: test_single_review(review.read())})
+    print(review_dict)
+
+
 def compare_class_labels(label, real_label):
     if label == "pos":
         if label == real_label:
@@ -209,5 +219,5 @@ if __name__ == '__main__':
     vocabulary = pos + neg
     all_values = sum(vocabulary.values())  # the integer sum of all words occurring in the vocubalary
     start_time = time.time()
-    test_large_set_of_reviews("test/*/*.txt")  # This tests 25k reviews and can take a long time to execute
+    test_reviews("unmarked/*.txt")  # This tests 25k reviews and can take a long time to execute
     print("Time spent in total {:.2f} seconds".format((time.time() - start_time)))

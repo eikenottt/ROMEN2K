@@ -27,5 +27,8 @@ This can be changed in the parameter of the `train_model()` function by defining
 
 ## Testing a movie review
 To predict the sentiment of a single review, use the `test_model(your_review)` function. If you want to check a
-larger set of reviews use the `test_large_set_of_reviews(directory)` function.
+larger set of reviews use the `test_reviews(directory)` function.
+
+If you want to check how well the classifier works, use the `test_large_set_of_reviews(directory)` using
+a folder containing sub-folders `neg` and `pos` containing negative and positive reviews respectively.
 
