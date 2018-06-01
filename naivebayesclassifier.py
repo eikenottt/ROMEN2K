@@ -209,5 +209,5 @@ if __name__ == '__main__':
     vocabulary = pos + neg
     all_values = sum(vocabulary.values())  # the integer sum of all words occurring in the vocubalary
     start_time = time.time()
-    test_large_set_of_reviews("test/*/*.txt")
+    test_large_set_of_reviews("test/*/*.txt")  # This tests 25k reviews and can take a long time to execute
     print("Time spent in total {:.2f} seconds".format((time.time() - start_time)))
