@@ -4,7 +4,7 @@ review is considered positive or negative.
 
 ## Folder Hierarchy
 
-`Project folder
+```Project folder
     |_ train
        |_neg
        |_pos
@@ -12,7 +12,7 @@ review is considered positive or negative.
         |_neg
         |_pos
     naivebayesclassifier.py
-`
+```
 
 ## Training the classifier
 If the training model is not located in the same folder as the python script, the training will take place.
