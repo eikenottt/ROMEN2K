@@ -7,13 +7,13 @@ The folder hierarchy should look like this:
 
 ```
 Project folder
-    L train
-       L neg
-       L pos
-    L test
-        L neg
-        L pos
-    naivebayesclassifier.py
+    |- train
+    |  |- neg
+    |  |- pos
+    |- test
+    |   |- neg
+    |   |- pos
+    |- naivebayesclassifier.py
     ...
 ```
 **Notice:**
