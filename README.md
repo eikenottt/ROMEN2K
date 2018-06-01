@@ -16,7 +16,7 @@ Project folder
     naivebayesclassifier.py
     ...
 ```
-@Notice:
+**Notice:**
 *The project must contain the test folder as shown. If you already have a trained model, the train folder is optional.*
 You should add your own movie review dataset if you want to retrain the model in the fashion shown above.
 
